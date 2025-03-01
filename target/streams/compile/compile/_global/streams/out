@@ -1,4 +1,4 @@
-[0m[[0m[31merror[0m] [0m[0m/teamspace/studios/this_studio/scala-work/src/main/scala/Main.scala:26:19: not found: value Date[0m
-[0m[[0m[31merror[0m] [0m[0m    df.select(col(Date), $"Open", df("Close")).show(10)[0m
-[0m[[0m[31merror[0m] [0m[0m                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/teamspace/studios/this_studio/scala-work/src/main/scala/Main.scala:37:21: value show is not a member of Array[Double][0m
+[0m[[0m[31merror[0m] [0m[0m    mean_word_count.show()[0m
+[0m[[0m[31merror[0m] [0m[0m                    ^[0m
 [0m[[0m[31merror[0m] [0m[0mone error found[0m

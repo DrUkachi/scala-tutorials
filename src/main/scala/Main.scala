@@ -1,6 +1,8 @@
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.col
+import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.functions._
 
 
 object Main { 
@@ -10,22 +12,36 @@ object Main {
       .master("local[*]")
       .getOrCreate()
 
-    val df: DataFrame = spark.read
+    val products: DataFrame = spark.read
       .option("header", "true")
       .option("inferSchema", "true")
-      .csv("/teamspace/studios/this_studio/scala-work/data/AAPL.csv")
+      .option("delimiter", "\t")
+      .csv("/teamspace/studios/this_studio/scala-work/data/products.tsv")
       
-    df.printSchema()
-    df.show(10)
+    val reviews: DataFrame = spark.read
+      .option("header", "true")
+      .option("inferSchema", "true")
+      .option("delimiter", "\t")
+      .csv("/teamspace/studios/this_studio/scala-work/data/reviews.tsv")
+    
+    val products_with_reviews = reviews.select("id").distinct().collect().map(n => n.getString(0)).toSeq // to get a sequence of product id strings
+    
+    val prodcucts_without_reviews = products.filter(!col("id").isin(products_with_reviews: _*))
 
-    import spark.implicits._
-    println("Selecting columns using select method")
-    df.select("Date", "Open", "Close").show(10)
-    println("Selecting columns using col method")
-    df.select(col("Date"), col("Open"), col("Close")).show(10)
-    println("Selecting columns using $ method")
-    df.select($"Date", $"Open", $"Close").show(10)
-    println("Selecting columns using $ method with select method")
-    df.select(col("Date"), $"Open", df("Close")).show(10)
+    val kitchen_products = prodcucts_without_reviews.filter(col("category") === "Kitchen") // To get kitchen products without reviews
+
+    val mean_word_count = kitchen_products.withColumn("word_count", size(split(col("description"), " ")))
+                                                .agg(mean("word_count").as("mean_word_count"))
+                                                .collect()(0).getDouble(0)
+                                                // To get mean word count of kitchen products without reviews
+
+    println("Mean word count of kitchen products without reviews:")
+    println(mean_word_count)
+                                
+
+
+
+
+
   }
 }
